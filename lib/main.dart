@@ -1,8 +1,15 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tiktokuiflutter/principal_page.dart';
 
-void main() => runApp(TiktokUiApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(TiktokUiApp());
+  });
+}
 
 class TiktokUiApp extends StatelessWidget {
   @override
@@ -13,7 +20,12 @@ class TiktokUiApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.black,
       ),
-      home: PrincipalPage(),
+      home: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+        ),
+        child: PrincipalPage()
+      ),
     );
   }
 }
