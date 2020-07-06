@@ -43,7 +43,6 @@ class _VideoState extends State<Video> {
   }
 
   void pauseAndPlay(){
-    print(widget.isCurrent);
     if(widget.isCurrent) {
       setState(() {
         _showArrow = false;
