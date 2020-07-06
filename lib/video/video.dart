@@ -6,11 +6,12 @@ import 'package:video_player/video_player.dart';
 
 class Video extends StatefulWidget{
 
-  bool isCurrent;
   bool isForYou;
+  bool isCurrent;
+  bool isUserPause;
   User user;
 
-  Video({ this.isForYou, this.isCurrent, this.user });
+  Video({ this.isForYou, this.isCurrent, this.isUserPause, this.user });
 
   @override
   State<StatefulWidget> createState() => _VideoState();
@@ -25,7 +26,11 @@ class _VideoState extends State<Video> {
   @override
   void initState() {
     _showArrow = false;
+    initVideo();
     super.initState();
+  }
+
+  void initVideo(){
     _videoPlayerController = VideoPlayerController.asset("assets/videos/${widget.user.albums.elementAt(0).videoName}.mp4"); //VideoPlayerController.network(widget.url);
     _initializeVideoPlayerFuture = _videoPlayerController.initialize();
     _videoPlayerController.setLooping(true);
@@ -37,23 +42,40 @@ class _VideoState extends State<Video> {
     super.dispose();
   }
 
+  void pauseAndPlay(){
+    print(widget.isCurrent);
+    if(widget.isCurrent) {
+      setState(() {
+        _showArrow = false;
+        widget.isCurrent = false;
+      });
+      _videoPlayerController.play();
+    } else {
+      if(_videoPlayerController != null && _videoPlayerController.value.isPlaying){
+        _videoPlayerController.seekTo(Duration.zero); //Reinicia o vídeo
+        _videoPlayerController.pause();
+      }
+    }
+  }
+
+  void removeUserPause(){
+    if(widget.isUserPause){ //Remover o pause que foi adicionado pelo usuário e fez scroll para cima ou para baixo
+      if(_videoPlayerController.value != null)
+        _videoPlayerController.seekTo(Duration.zero);
+      setState(() {
+        widget.isUserPause = false;
+        _showArrow = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    if(widget.isCurrent) {
-        setState(() {
-          _showArrow = false;
-          _videoPlayerController.play();
-          widget.isCurrent = false;
-        });
-    } else {
-      if(_videoPlayerController != null && _videoPlayerController.value.isPlaying)
-        setState(() {
-          _videoPlayerController.seekTo(Duration.zero); //Reinicia o vídeo
-          _videoPlayerController.pause();
-        });
-    }
-      return Stack(
+    removeUserPause();
+    pauseAndPlay();
+
+    return Stack(
       children: <Widget>[
         Container(
           color: Colors.black, //purple
@@ -67,7 +89,7 @@ class _VideoState extends State<Video> {
                   builder: (context, snapshot){
                     if(snapshot.connectionState == ConnectionState.done){
                       return AspectRatio(
-                        aspectRatio: _videoPlayerController.value.aspectRatio,
+                        aspectRatio: _videoPlayerController.value.aspectRatio / 1.062,
                         child: VideoPlayer(_videoPlayerController),
                       );
                     }

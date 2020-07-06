@@ -25,6 +25,7 @@ class _VideosListState extends State<VideosList> with AutomaticKeepAliveClientMi
   int _index = 0;
   int _currentIndex = 0;
   bool _isCurrent = false;
+  bool _isUserPause = false;
 
   List<int> numbers = [0,1,2,3,4];
 
@@ -65,24 +66,42 @@ class _VideosListState extends State<VideosList> with AutomaticKeepAliveClientMi
 
   Widget showVideosList({ List<User> users }){
 
-    print(widget.isForYou);
-
     return NotificationListener(
       onNotification: (ScrollNotification notification){
         if (notification is ScrollEndNotification && notification.metrics.axis == Axis.vertical) {
           double currentPosition = !notification.metrics.pixels.isInfinite ? notification.metrics.pixels : 0;
 
-          _index = (currentPosition / _heights.elementAt(0)).round();
+          setState(() {
+            _index = (currentPosition / _heights.elementAt(0)).round();
+          });
+
           //print("pos: "+_index.toString());
           //print("currentPosition: "+currentPosition.toString());
 
-          if(_index <= 4) {
+          //Remover o pause adicionado pelo usuário
+          if(currentPosition.round() == (_heights.elementAt(0) * (_currentIndex + 1) - _heights.elementAt(0)).round()){ //false para index atual
+            setState(() {
+              _isUserPause = false;
+            });
+          } else { //para index diferente do index atual
+            if (currentPosition > (_heights.elementAt(0) * (_index + 1)) ||
+                currentPosition < (_heights.elementAt(0) * (_index + 1))) {
+              setState(() {
+                _isUserPause = true;
+              });
+            } else {
+              setState(() {
+                _isUserPause = false;
+              });
+            }
+          }
+            //Faz a mesma coisa que PageScrollPhysics
+          /*if(_index <= 4) {
             setState(() {
               _currentIndex = _index;
             });
 
-            //Faz a mesma coisa que PageScrollPhysics
-            /*if (currentPosition < ((_heights.elementAt(0) * (_index + 1)) -
+            if (currentPosition < ((_heights.elementAt(0) * (_index + 1)) -
                 (_heights.elementAt(0) / 2))) {
               //print("primeira parte");
               Future.delayed(const Duration(milliseconds: 100), () {})
@@ -100,8 +119,8 @@ class _VideosListState extends State<VideosList> with AutomaticKeepAliveClientMi
                     duration: Duration(milliseconds: 500),
                     curve: Curves.ease);
               });
-            }*/
-          }
+            }
+          }*/
         }
         return false;
       },
@@ -116,7 +135,8 @@ class _VideosListState extends State<VideosList> with AutomaticKeepAliveClientMi
           if(!widget.controlKey){
             _isCurrent = false;
           } else {
-            if(_currentIndex == numbers.elementAt(position)){
+            if(_index == numbers.elementAt(position)){
+              _currentIndex = _index; //Recebe o índice atual
               _isCurrent = true;
             } else {
               _isCurrent = false;
@@ -133,7 +153,7 @@ class _VideosListState extends State<VideosList> with AutomaticKeepAliveClientMi
               Container(
                 //key: Key("${widget.isForYou ? 'FY' : 'F'}_${position}"),
                 height: MediaQuery.of(context).size.height, // * 0.97
-                child: Video(isCurrent: _isCurrent, isForYou: widget.isForYou, user: users.elementAt(position)),
+                child: Video( isForYou: widget.isForYou, isCurrent: _isCurrent, isUserPause: _isUserPause, user: users.elementAt(position)),
               ),
             ],
           );

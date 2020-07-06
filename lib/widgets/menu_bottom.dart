@@ -53,7 +53,7 @@ class MenuBottom extends StatelessWidget {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(7.0)
                             ),
-                            child: Icon(Icons.add, size: 20.0,),
+                            child: Icon(Icons.add, size: 20.0, color: Colors.black),
                           )),
                         ],
                       ),

@@ -4,11 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:tiktokuiflutter/principal_page.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) {
-    runApp(TiktokUiApp());
-  });
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  runApp(TiktokUiApp());
 }
 
 class TiktokUiApp extends StatelessWidget {
@@ -18,11 +15,11 @@ class TiktokUiApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Tiktok UI Inspiration",
       theme: ThemeData(
-        primaryColor: Colors.black,
+          brightness: Brightness.dark
       ),
       home: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
+            statusBarColor: Colors.transparent,
         ),
         child: PrincipalPage()
       ),
